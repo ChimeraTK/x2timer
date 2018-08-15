@@ -438,7 +438,5 @@ void X2Interrupt::mainLoop() {
       macroPulseNumber = dst.get_long(0);
       macroPulseNumber.write();
 
-      std::cout << "USR1 " << macroPulseNumber << " " << dst.type_string() << std::endl;
-
     }
 }

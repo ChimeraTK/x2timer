@@ -41,7 +41,6 @@ void x2timer_server::defineConnections() {
     // create a x2timer object and initialise
 
     x2timer = new X2Timer("MASTER");
-    x2timer->init();
 
     // STEP.3
     // create a signal processing and update modules
@@ -387,8 +386,34 @@ void X2Inputs::mainLoop() {
     // fill input map
     boost::fusion::for_each( inputs.table, FunctorFillMap(this) );
 
-    // update all properties once with the initial values
-    for(auto &pair : propertyMap) updateProperty(pair.first);
+    // update all properties once with the initial values (exception: MODE is initialised later)
+    for(auto &pair : propertyMap) {
+      if(pair.second->basename() == "MODE") continue;
+      updateProperty(pair.first);
+    }
+
+    // special treatment for the MODE variable: set it once more to its stored value to make sure we have not
+    // overwritten something. This is a HACK and prevents from operating in anything else than one of those standard
+    // modes!
+    for(auto &pair : propertyMap) {
+      if(pair.second->basename() != "MODE") continue;
+      updateProperty(pair.first);
+    }
+
+    // Initialise
+    x2timer->init();
+
+    // update all properties once more, it seems we have to set some of them after init()
+    for(auto &pair : propertyMap) {
+      if(pair.second->basename() == "MODE") continue;
+      updateProperty(pair.first);
+    }
+
+    // special treatment for the MODE variable once more
+    for(auto &pair : propertyMap) {
+      if(pair.second->basename() != "MODE") continue;
+      updateProperty(pair.first);
+    }
 
     while(true) {
 
